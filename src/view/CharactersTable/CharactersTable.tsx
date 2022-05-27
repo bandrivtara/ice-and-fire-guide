@@ -1,63 +1,58 @@
-import { List, ListItem, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Select, MenuItem, SelectChangeEvent, InputLabel } from '@mui/material';
+import { List, ListItem, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState, useCallback } from 'react';
 import { Character } from '../../types';
+import FiltersPanel from './FiltersPanel';
+
+export type TableFilters = {
+    gender: string;
+    culture: string;
+};
 
 const CharactersTable = () => {
-    const [charactersList, setCharactersList] = useState<Array<Character>>([])
-    const [filter, setFilter] = useState({ gender: '', culture: '' })
+    const [charactersList, setCharactersList] = useState<Array<Character>>([]);
+    const [filters, setFilters] = useState<TableFilters>({ gender: '', culture: '' });
 
     useEffect(() => {
         const getCharactersList = async () => {
-            const res = await axios.get('https://anapioficeandfire.com/api/characters');
-            setCharactersList(res.data)
-        }
+            const res = await axios.get('https://anapioficeandfire.com/api/characters', {
+                params: {
+                    gender: filters.gender,
+                    culture: filters.culture,
+                },
+            });
+            setCharactersList(res.data);
+            console.log(res.data);
+        };
 
-        getCharactersList()
-    }, [])
+        getCharactersList();
+    }, [filters]);
 
-    const getCharacterNames = useCallback((name: string, aliasesList: Array<string>) =>
-        `${name && name + ', '}${aliasesList.join(', ')}`, [])
+    const getCharacterNames = useCallback(
+        (name: string, aliasesList: Array<string>) => `${name && name + ', '}${aliasesList.join(', ')}`,
+        [],
+    );
 
     const getCharacterAlive = useCallback((born: string, died: string) => {
         if (!died && !born) {
-            return 'Unknown'
+            return 'Unknown';
         }
 
         if (!born) {
-            return 'No'
+            return 'No';
         } else if (!died) {
-            return 'Yes'
+            return 'Yes';
         }
 
-
         // TO DO
-        return 'Died in'
+        return 'Died in';
+    }, []);
 
-    }, [])
-
-    const getHouseId = useCallback((houseUrl: string) =>
-        houseUrl.split('/').pop(), []);
-
-    const handleGenderFilter = (event: SelectChangeEvent) => {
-        setFilter({ ...filter, gender: event.target.value as string })
-    }
+    const getHouseId = useCallback((houseUrl: string) => houseUrl.split('/').pop(), []);
 
     return (
         <Paper>
-            <Box sx={{ padding: 2, display: 'flex', justifyContent: 'end' }}>
-                <Select
-                    variant='standard'
-                    sx={{ 'minWidth': '200px' }}
-                    value={filter.gender}
-                    onChange={handleGenderFilter}
-                    displayEmpty
-                >
-                    <MenuItem value=''>Any</MenuItem>
-                    <MenuItem value='male'>Male</MenuItem>
-                    <MenuItem value='female'>Female</MenuItem>
-                </Select>
-            </Box>
+            <FiltersPanel filters={filters} setFilters={setFilters} />
             <TableContainer>
                 <Table size="small" aria-label="a dense table">
                     <TableHead>
@@ -78,19 +73,24 @@ const CharactersTable = () => {
                                 <TableCell>{getCharacterAlive(character.born, character.died)}</TableCell>
                                 <TableCell>{character.gender}</TableCell>
                                 <TableCell>{character.culture ? character.culture : 'Unknown'}</TableCell>
-                                <TableCell>{character.allegiances[0] ? <List>
-                                    {character.allegiances.map(houseUrl => (
-                                        <ListItem disablePadding>
-                                            House {getHouseId(houseUrl)}
-                                        </ListItem>
-                                    ))}</List> : 'No allegiances'}</TableCell>
+                                <TableCell>
+                                    {character.allegiances[0] ? (
+                                        <List>
+                                            {character.allegiances.map((houseUrl, index) => (
+                                                <ListItem key={index} disablePadding>House {getHouseId(houseUrl)}</ListItem>
+                                            ))}
+                                        </List>
+                                    ) : (
+                                        'No allegiances'
+                                    )}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer>
         </Paper>
-    )
-}
+    );
+};
 
-export default CharactersTable
+export default CharactersTable;
