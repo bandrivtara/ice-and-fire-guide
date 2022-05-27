@@ -3,30 +3,50 @@ import axios from 'axios';
 import { useEffect, useState, useCallback } from 'react';
 import { Character } from '../../types';
 import FiltersPanel from './FiltersPanel';
+import Pagination from './Pagination';
 
 export type TableFilters = {
     gender: string;
     culture: string;
 };
 
+export type PaginationData = {
+    page: number;
+    rowsPerPage: number;
+    lastPage: number;
+};
+
 const CharactersTable = () => {
     const [charactersList, setCharactersList] = useState<Array<Character>>([]);
     const [filters, setFilters] = useState<TableFilters>({ gender: '', culture: '' });
+    const [paginationData, setPaginationData] = useState<PaginationData>({
+        page: 1,
+        rowsPerPage: 25,
+        lastPage: 0,
+    });
 
     useEffect(() => {
         const getCharactersList = async () => {
-            const res = await axios.get('https://anapioficeandfire.com/api/characters', {
-                params: {
-                    gender: filters.gender,
-                    culture: filters.culture,
+            const res = await axios.get(
+                `https://anapioficeandfire.com/api/characters?page=${paginationData.page}&pageSize=${paginationData.rowsPerPage}`,
+                {
+                    params: {
+                        gender: filters.gender,
+                        culture: filters.culture,
+                    },
                 },
-            });
+            );
+
+            const lastPageRel = res.headers.link.split(',').filter((rel) => rel.includes('last'))[0];
+            const lastPage = lastPageRel.substring(lastPageRel.indexOf('page=') + 5, lastPageRel.lastIndexOf('&'));
+            parseInt(lastPage) !== paginationData.lastPage &&
+                setPaginationData({ ...paginationData, lastPage: parseInt(lastPage) });
+
             setCharactersList(res.data);
-            console.log(res.data);
         };
 
         getCharactersList();
-    }, [filters]);
+    }, [filters, paginationData]);
 
     const getCharacterNames = useCallback(
         (name: string, aliasesList: Array<string>) => `${name && name + ', '}${aliasesList.join(', ')}`,
@@ -77,7 +97,9 @@ const CharactersTable = () => {
                                     {character.allegiances[0] ? (
                                         <List>
                                             {character.allegiances.map((houseUrl, index) => (
-                                                <ListItem key={index} disablePadding>House {getHouseId(houseUrl)}</ListItem>
+                                                <ListItem key={index} disablePadding>
+                                                    House {getHouseId(houseUrl)}
+                                                </ListItem>
                                             ))}
                                         </List>
                                     ) : (
@@ -89,6 +111,7 @@ const CharactersTable = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <Pagination paginationData={paginationData} setPaginationData={setPaginationData} />
         </Paper>
     );
 };

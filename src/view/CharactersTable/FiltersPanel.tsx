@@ -1,4 +1,13 @@
-import { Box, Input , InputLabel, Select, MenuItem, SelectChangeEvent, InputAdornment, CircularProgress } from '@mui/material';
+import {
+    Box,
+    Input,
+    InputLabel,
+    Select,
+    MenuItem,
+    SelectChangeEvent,
+    InputAdornment,
+    CircularProgress,
+} from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { TableFilters } from './CharactersTable';
 
@@ -14,10 +23,10 @@ const FiltersPanel = ({ filters, setFilters }: FiltersPanelProps) => {
     const [isDebounce, setIsDebounce] = useState(false);
 
     useEffect(() => {
-        
         const delayDebounceFn = setTimeout(() => {
-            setFilters({ ...filters, culture: cultureValue });
-            setIsDebounce(false)
+            const isNewValue = filters.culture !== cultureValue
+            isNewValue && setFilters({ ...filters, culture: cultureValue });
+            setIsDebounce(false);
         }, DELAY_DEBOUNCE_TIME_MS);
 
         return () => clearTimeout(delayDebounceFn);
@@ -28,22 +37,20 @@ const FiltersPanel = ({ filters, setFilters }: FiltersPanelProps) => {
     };
 
     const handleChangeCultureFilter = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setIsDebounce(true)
+        setIsDebounce(true);
         setCultureValue(event.target.value);
     };
 
     return (
         <Box sx={{ padding: 2, display: 'flex', justifyContent: 'end', alignItems: 'end' }}>
-            <Input 
-                sx={{ marginRight: 2, width: "200px" }}
+            <Input
+                sx={{ marginRight: 2, width: '200px' }}
                 value={cultureValue}
                 placeholder="Filter by culture"
                 onChange={handleChangeCultureFilter}
                 endAdornment={
-                    <InputAdornment position="end">
-                      {isDebounce && <CircularProgress size={20} />}
-                    </InputAdornment>
-                  }
+                    <InputAdornment position="end">{isDebounce && <CircularProgress size={20} />}</InputAdornment>
+                }
             />
             <Box>
                 <InputLabel id="gender-filter">Filter by gender</InputLabel>
