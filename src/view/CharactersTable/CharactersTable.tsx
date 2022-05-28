@@ -1,22 +1,24 @@
 import { Box, Table, TableContainer, Typography } from '@mui/material';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect, useContext } from 'react';
 import { fetchCharactersList } from '../../api';
-import { PAGINATION_CONFIG } from '../../configs';
-import { Character } from '../../types';
 import FiltersPanel, { Filters } from './FiltersPanel';
-import Pagination, { PaginationData } from './Pagination';
+import Pagination from './Pagination';
 import TableBody from './TableBody';
 import TableHead from './TableHead';
+import { AppContext, AppContextProps } from '../../context/index';
 
 const CharactersTable = () => {
-    const [charactersList, setCharactersList] = useState<Array<Character>>([]);
-    const [filters, setFilters] = useState<Filters>({ gender: '', culture: '' });
-    const [paginationData, setPaginationData] = useState<PaginationData>({
-        page: 1,
-        rowsPerPage: PAGINATION_CONFIG.initialRowPerPageOption,
-    });
-    const [lastPage, setLastPage] = useState(0);
+    const {
+        setCharactersList,
+        charactersList,
+        filters,
+        lastPage,
+        paginationData,
+        setFilters,
+        setLastPage,
+        setPaginationData,
+    } = useContext(AppContext) as AppContextProps;
 
     useEffect(() => {
         const getCharactersList = async () => {
@@ -29,7 +31,7 @@ const CharactersTable = () => {
         };
 
         getCharactersList();
-    }, [filters, paginationData]);
+    }, [filters, paginationData, setCharactersList, setLastPage]);
 
     const updateFilters = (newFilters: Filters) => {
         if (!_.isEqual(filters, newFilters)) {
