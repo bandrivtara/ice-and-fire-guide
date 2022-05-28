@@ -1,11 +1,14 @@
-import { List, ListItem, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Box, Paper, Table, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import axios from 'axios';
-import { useEffect, useState, useCallback } from 'react';
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
+import { API_ENDPOINTS, BASE_URL, PAGINATION_CONFIG } from '../../configs';
 import { Character } from '../../types';
 import FiltersPanel from './FiltersPanel';
 import Pagination from './Pagination';
+import CharactersTableBody from './TableBody';
 
-export type TableFilters = {
+export type Filters = {
     gender: string;
     culture: string;
 };
@@ -13,68 +16,64 @@ export type TableFilters = {
 export type PaginationData = {
     page: number;
     rowsPerPage: number;
-    lastPage: number;
 };
 
 const CharactersTable = () => {
     const [charactersList, setCharactersList] = useState<Array<Character>>([]);
-    const [filters, setFilters] = useState<TableFilters>({ gender: '', culture: '' });
+    const [filters, setFilters] = useState<Filters>({ gender: '', culture: '' });
     const [paginationData, setPaginationData] = useState<PaginationData>({
         page: 1,
-        rowsPerPage: 25,
-        lastPage: 0,
+        rowsPerPage: PAGINATION_CONFIG.initialRowPerPageOption,
     });
+    const [lastPage, setLastPage] = useState(0);
 
     useEffect(() => {
         const getCharactersList = async () => {
             const res = await axios.get(
-                `https://anapioficeandfire.com/api/characters?page=${paginationData.page}&pageSize=${paginationData.rowsPerPage}`,
+                `${BASE_URL}${API_ENDPOINTS.characters}?page=${paginationData.page}&pageSize=${paginationData.rowsPerPage}`,
                 {
                     params: {
-                        gender: filters.gender,
-                        culture: filters.culture,
+                        gender: filters.gender ? filters.gender : null,
+                        culture: filters.culture ? filters.culture : null,
                     },
                 },
             );
 
             const lastPageRel = res.headers.link.split(',').filter((rel) => rel.includes('last'))[0];
-            const lastPage = lastPageRel.substring(lastPageRel.indexOf('page=') + 5, lastPageRel.lastIndexOf('&'));
-            parseInt(lastPage) !== paginationData.lastPage &&
-                setPaginationData({ ...paginationData, lastPage: parseInt(lastPage) });
+            const newLastPage = lastPageRel.substring(lastPageRel.indexOf('page=') + 5, lastPageRel.lastIndexOf('&'));
 
+            setLastPage(parseInt(newLastPage));
             setCharactersList(res.data);
         };
 
         getCharactersList();
-    }, [filters, paginationData]);
+    }, [filters.culture, filters.gender, paginationData.page, paginationData.rowsPerPage]);
 
-    const getCharacterNames = useCallback(
-        (name: string, aliasesList: Array<string>) => `${name && name + ', '}${aliasesList.join(', ')}`,
-        [],
-    );
-
-    const getCharacterAlive = useCallback((born: string, died: string) => {
-        if (!died && !born) {
-            return 'Unknown';
+    const updateFilters = (newFilters: Filters) => {
+        if (!_.isEqual(filters, newFilters)) {
+            setFilters(newFilters);
+            setPaginationData({ ...paginationData, page: 1 });
         }
-
-        if (!born) {
-            return 'No';
-        } else if (!died) {
-            return 'Yes';
-        }
-
-        // TO DO
-        return 'Died in';
-    }, []);
-
-    const getHouseId = useCallback((houseUrl: string) => houseUrl.split('/').pop(), []);
+    };
 
     return (
-        <Paper>
-            <FiltersPanel filters={filters} setFilters={setFilters} />
+        <Paper sx={{m:4}}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    padding: 2,
+                }}
+            >
+                <Typography variant="h1" sx={{ fontSize: 26 }}>
+                    Characters table
+                </Typography>
+                <FiltersPanel filters={filters} updateFilters={updateFilters} />
+            </Box>
             <TableContainer>
-                <Table size="small" aria-label="a dense table">
+                <Table size="small" aria-label="characters table">
                     <TableHead>
                         <TableRow>
                             <TableCell>Character</TableCell>
@@ -84,34 +83,10 @@ const CharactersTable = () => {
                             <TableCell>Allegiances</TableCell>
                         </TableRow>
                     </TableHead>
-                    <TableBody>
-                        {charactersList.map((character, index) => (
-                            <TableRow key={index}>
-                                <TableCell component="th" scope="row">
-                                    {getCharacterNames(character.name, character.aliases)}
-                                </TableCell>
-                                <TableCell>{getCharacterAlive(character.born, character.died)}</TableCell>
-                                <TableCell>{character.gender}</TableCell>
-                                <TableCell>{character.culture ? character.culture : 'Unknown'}</TableCell>
-                                <TableCell>
-                                    {character.allegiances[0] ? (
-                                        <List>
-                                            {character.allegiances.map((houseUrl, index) => (
-                                                <ListItem key={index} disablePadding>
-                                                    House {getHouseId(houseUrl)}
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    ) : (
-                                        'No allegiances'
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
+                    <CharactersTableBody charactersList={charactersList} />
                 </Table>
             </TableContainer>
-            <Pagination paginationData={paginationData} setPaginationData={setPaginationData} />
+            <Pagination paginationData={paginationData} setPaginationData={setPaginationData} lastPage={lastPage} />
         </Paper>
     );
 };
