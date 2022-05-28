@@ -11,7 +11,11 @@ import {
 } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { FILTERS_CONFIG } from '../../configs';
-import { Filters } from './CharactersTable';
+
+export type Filters = {
+    gender: string;
+    culture: string;
+};
 
 type FiltersPanelProps = {
     filters: Filters;

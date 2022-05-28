@@ -2,9 +2,13 @@ import { Box, IconButton, MenuItem, Select, SelectChangeEvent, Typography } from
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
 import FirstPageOutlinedIcon from '@mui/icons-material/FirstPageOutlined';
 import LastPageOutlinedIcon from '@mui/icons-material/LastPageOutlined';
-import { PaginationData } from './CharactersTable';
 import {useCallback} from 'react'
 import { PAGINATION_CONFIG } from '../../configs';
+
+export type PaginationData = {
+    page: number;
+    rowsPerPage: number;
+};
 
 type PaginationProps = {
     paginationData: PaginationData;

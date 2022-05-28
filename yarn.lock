@@ -2111,6 +2111,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/history@^4.7.11":
+  version "4.7.11"
+  resolved "https://tfs.gft.com/OAF Collection/Leumi/_packaging/Leumi_feed/npm/registry/@types/history/-/history-4.7.11.tgz#56588b17ae8f50c53983a524fc3cc47437969d64"
+  integrity sha1-VliLF66PUMU5g6Uk/DzEdDeWnWQ=
+
 "@types/html-minifier-terser@^6.0.0":
   version "6.1.0"
   resolved "https://registry.npmjs.org/@types/html-minifier-terser/-/html-minifier-terser-6.1.0.tgz"
@@ -2222,6 +2227,23 @@
   resolved "https://tfs.gft.com/OAF Collection/Leumi/_packaging/Leumi_feed/npm/registry/@types/react-is/-/react-is-17.0.3.tgz#2d855ba575f2fc8d17ef9861f084acc4b90a137a"
   integrity sha1-LYVbpXXy/I0X75hh8ISsxLkKE3o=
   dependencies:
+    "@types/react" "*"
+
+"@types/react-router-dom@^5.3.3":
+  version "5.3.3"
+  resolved "https://tfs.gft.com/OAF Collection/Leumi/_packaging/Leumi_feed/npm/registry/@types/react-router-dom/-/react-router-dom-5.3.3.tgz#e9d6b4a66fcdbd651a5f106c2656a30088cc1e83"
+  integrity sha1-6da0pm/NvWUaXxBsJlajAIjMHoM=
+  dependencies:
+    "@types/history" "^4.7.11"
+    "@types/react" "*"
+    "@types/react-router" "*"
+
+"@types/react-router@*":
+  version "5.1.18"
+  resolved "https://tfs.gft.com/OAF Collection/Leumi/_packaging/Leumi_feed/npm/registry/@types/react-router/-/react-router-5.1.18.tgz#c8851884b60bc23733500d86c1266e1cfbbd9ef3"
+  integrity sha1-yIUYhLYLwjczUA2GwSZuHPu9nvM=
+  dependencies:
+    "@types/history" "^4.7.11"
     "@types/react" "*"
 
 "@types/react-transition-group@^4.2.0", "@types/react-transition-group@^4.4.4":
