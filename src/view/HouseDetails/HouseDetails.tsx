@@ -101,7 +101,7 @@ const HouseDetails = () => {
                                 },
                             })}
                         >
-                            <Typography>{house.label}</Typography>
+                            <Typography sx={{minWidth: '300px'}}>{house.label}</Typography>
                             {house.isArray ? (
                                 <List>
                                     {house.value?.map((value, index) => (

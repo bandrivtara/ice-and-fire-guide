@@ -1,4 +1,4 @@
-import { Box, Table, TableContainer,  Typography } from '@mui/material';
+import {  Box, CircularProgress, Table, TableContainer, Typography } from '@mui/material';
 import axios from 'axios';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
@@ -16,10 +16,12 @@ const CharactersTable = () => {
         page: 1,
         rowsPerPage: PAGINATION_CONFIG.initialRowPerPageOption,
     });
+    const [isFetching, setIsFetching] = useState(false);
     const [lastPage, setLastPage] = useState(0);
 
     useEffect(() => {
         const getCharactersList = async () => {
+            setIsFetching(true);
             const res = await axios.get(
                 `${BASE_URL}${API_ENDPOINTS.characters}?page=${paginationData.page}&pageSize=${paginationData.rowsPerPage}`,
                 {
@@ -33,6 +35,7 @@ const CharactersTable = () => {
             const lastPageRel = res.headers.link.split(',').filter((rel) => rel.includes('last'))[0];
             const newLastPage = lastPageRel.substring(lastPageRel.indexOf('page=') + 5, lastPageRel.lastIndexOf('&'));
 
+            setIsFetching(false);
             setLastPage(parseInt(newLastPage));
             setCharactersList(res.data);
         };
@@ -63,7 +66,24 @@ const CharactersTable = () => {
                 </Typography>
                 <FiltersPanel filters={filters} updateFilters={updateFilters} />
             </Box>
-            <TableContainer sx={{mt: 1}}>
+
+            <TableContainer sx={{ mt: 1, position: 'relative' }}>
+                {isFetching && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            width: '100%',
+                            height: '100%',
+                            zIndex: 10,
+                            background: 'rgba(255,255,255, 0.6)',
+                        }}
+                    >
+                        <CircularProgress
+                            sx={{ position: 'fixed', transform: 'translate(-50%, -50%)', top: '50%', left: '50%' }}
+                            color="primary"
+                        />
+                    </Box>
+                )}
                 <Table size="small" aria-label="characters table">
                     <TableHead />
                     <TableBody charactersList={charactersList} />
