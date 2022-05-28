@@ -2,6 +2,7 @@
     "name": "ice-and-fire-guide",
     "version": "0.1.0",
     "private": true,
+    "homepage": "https://bandrivtara.github.io",
     "dependencies": {
         "@babel/preset-typescript": "^7.17.12",
         "@emotion/react": "^11.9.0",
@@ -19,6 +20,7 @@
         "@types/react-dom": "^18.0.0",
         "@types/react-router-dom": "^5.3.3",
         "axios": "^0.27.2",
+        "gh-pages": "^4.0.0",
         "jest": "^28.1.0",
         "lodash": "^4.17.21",
         "react": "^18.1.0",
@@ -34,7 +36,9 @@
         "build": "react-scripts build",
         "test": "jest",
         "test:watch": "jest --watch",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build"
     },
     "eslintConfig": {
         "extends": [
@@ -42,7 +46,7 @@
             "react-app/jest"
         ]
     },
-    "jest":{
+    "jest": {
         "testEnvironment": "jsdom"
     },
     "browserslist": {
