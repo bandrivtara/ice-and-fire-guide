@@ -56,8 +56,10 @@ const CharactersTable = () => {
             </Box>
 
             <TableContainer>
+                {/* TODO add preloader on data fetching */}
                 <Table size="small" aria-label="characters table">
                     <TableHead />
+                    {/* TODO if list empty show Empty image/label/component */}
                     <TableBody charactersList={charactersList} />
                 </Table>
             </TableContainer>
