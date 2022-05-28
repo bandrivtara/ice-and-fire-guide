@@ -1,8 +1,8 @@
-import {  Box, CircularProgress, Table, TableContainer, Typography } from '@mui/material';
-import axios from 'axios';
+import { Box, Table, TableContainer, Typography } from '@mui/material';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { API_ENDPOINTS, BASE_URL, PAGINATION_CONFIG } from '../../configs';
+import { fetchCharactersList } from '../../api';
+import { PAGINATION_CONFIG } from '../../configs';
 import { Character } from '../../types';
 import FiltersPanel, { Filters } from './FiltersPanel';
 import Pagination, { PaginationData } from './Pagination';
@@ -16,32 +16,20 @@ const CharactersTable = () => {
         page: 1,
         rowsPerPage: PAGINATION_CONFIG.initialRowPerPageOption,
     });
-    const [isFetching, setIsFetching] = useState(false);
     const [lastPage, setLastPage] = useState(0);
 
     useEffect(() => {
         const getCharactersList = async () => {
-            setIsFetching(true);
-            const res = await axios.get(
-                `${BASE_URL}${API_ENDPOINTS.characters}?page=${paginationData.page}&pageSize=${paginationData.rowsPerPage}`,
-                {
-                    params: {
-                        gender: filters.gender ? filters.gender : null,
-                        culture: filters.culture ? filters.culture : null,
-                    },
-                },
-            );
+            const res = await fetchCharactersList(paginationData, filters);
 
-            const lastPageRel = res.headers.link.split(',').filter((rel) => rel.includes('last'))[0];
-            const newLastPage = lastPageRel.substring(lastPageRel.indexOf('page=') + 5, lastPageRel.lastIndexOf('&'));
-
-            setIsFetching(false);
-            setLastPage(parseInt(newLastPage));
-            setCharactersList(res.data);
+            if (res) {
+                setCharactersList(res.list);
+                setLastPage(parseInt(res.lastPage));
+            }
         };
 
         getCharactersList();
-    }, [filters.culture, filters.gender, paginationData.page, paginationData.rowsPerPage]);
+    }, [filters, paginationData]);
 
     const updateFilters = (newFilters: Filters) => {
         if (!_.isEqual(filters, newFilters)) {
@@ -67,23 +55,7 @@ const CharactersTable = () => {
                 <FiltersPanel filters={filters} updateFilters={updateFilters} />
             </Box>
 
-            <TableContainer sx={{ mt: 1, position: 'relative' }}>
-                {isFetching && (
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            width: '100%',
-                            height: '100%',
-                            zIndex: 10,
-                            background: 'rgba(255,255,255, 0.6)',
-                        }}
-                    >
-                        <CircularProgress
-                            sx={{ position: 'fixed', transform: 'translate(-50%, -50%)', top: '50%', left: '50%' }}
-                            color="primary"
-                        />
-                    </Box>
-                )}
+            <TableContainer>
                 <Table size="small" aria-label="characters table">
                     <TableHead />
                     <TableBody charactersList={charactersList} />

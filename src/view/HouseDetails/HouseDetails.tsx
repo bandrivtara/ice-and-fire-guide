@@ -1,10 +1,10 @@
 import { Box, Button, Card, CardContent, List, ListItem, Typography, alpha } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Link as RouterLink, useParams } from 'react-router-dom';
-import { API_ENDPOINTS, BASE_URL, PATHS } from '../../configs';
+import { PATHS } from '../../configs';
 import { useEffect, useState, useCallback } from 'react';
 import { House } from '../../types';
-import axios from 'axios';
+import { fetchHouseDetails } from '../../api';
 
 const HouseDetails = () => {
     const { houseId } = useParams();
@@ -12,15 +12,17 @@ const HouseDetails = () => {
 
     useEffect(() => {
         const getHouseDetails = async () => {
-            const res = await axios.get(`${BASE_URL}${API_ENDPOINTS.houseDetails}/${houseId}`);
-            setHouseDetails(res.data);
-            console.log(res.data);
+            if (houseId) {
+                const res = await fetchHouseDetails(houseId);
+                res && setHouseDetails(res.data);
+            }
         };
+
         getHouseDetails();
 
-        return (()=> {
-            setHouseDetails(null)
-        })
+        return () => {
+            setHouseDetails(null);
+        };
     }, [houseId]);
 
     const getHouseDetails = useCallback(() => {
@@ -95,13 +97,14 @@ const HouseDetails = () => {
                             sx={(theme) => ({
                                 display: 'flex',
                                 justifyContent: 'space-between',
-                                px: 2, py: 1,
+                                px: 2,
+                                py: 1,
                                 '&:nth-of-type(2n-1)': {
                                     background: alpha(theme.palette.primary.main, 0.1),
                                 },
                             })}
                         >
-                            <Typography sx={{minWidth: '300px'}}>{house.label}</Typography>
+                            <Typography sx={{ minWidth: '300px' }}>{house.label}</Typography>
                             {house.isArray ? (
                                 <List>
                                     {house.value?.map((value, index) => (
