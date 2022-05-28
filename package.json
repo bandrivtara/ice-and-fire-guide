@@ -2,7 +2,7 @@
     "name": "ice-and-fire-guide",
     "version": "0.1.0",
     "private": true,
-    "homepage": "https://bandrivtara.github.io",
+    "homepage": "https://bandrivtara.github.io/ice-and-fire-guide/",
     "dependencies": {
         "@babel/preset-typescript": "^7.17.12",
         "@emotion/react": "^11.9.0",
