@@ -1,12 +1,14 @@
-import { List, ListItem, TableBody, TableCell, TableRow } from '@mui/material';
+import { List, ListItem, TableBody as MuiTableBody, TableCell, TableRow, Link, alpha } from '@mui/material';
 import { useCallback } from 'react';
+import { PATHS } from '../../configs';
 import { Character } from '../../types';
+import { Link as RouterLink } from 'react-router-dom';
 
-type CharactersTableBodyProps = {
+type TableBodyProps = {
     charactersList: Array<Character>;
 };
 
-const CharactersTableBody = ({ charactersList }: CharactersTableBodyProps) => {
+const TableBody = ({ charactersList }: TableBodyProps) => {
     const getCharacterNames = useCallback(
         (name: string, aliasesList: Array<string>) =>
             `${name && name}${aliasesList[0] && name ? ', ' : ''}${aliasesList.join(', ')}`,
@@ -62,9 +64,13 @@ const CharactersTableBody = ({ charactersList }: CharactersTableBodyProps) => {
     const getHouseId = useCallback((houseUrl: string) => houseUrl.split('/').pop(), []);
 
     return (
-        <TableBody>
+        <MuiTableBody>
             {charactersList.map((character, index) => (
-                <TableRow key={index}>
+                <TableRow  sx={(theme) => ({
+                    '&:nth-of-type(2n-1)': {
+                        background: alpha(theme.palette.primary.main, 0.1),
+                    },
+                })} key={index}>
                     <TableCell component="th" scope="row">
                         {getCharacterNames(character.name, character.aliases)}
                     </TableCell>
@@ -76,7 +82,13 @@ const CharactersTableBody = ({ charactersList }: CharactersTableBodyProps) => {
                             <List>
                                 {character.allegiances.map((houseUrl, index) => (
                                     <ListItem key={index} disablePadding>
-                                        House {getHouseId(houseUrl)}
+                                        <Link
+                                            underline="hover"
+                                            component={RouterLink}
+                                            to={`${PATHS.houseDetails}/${getHouseId(houseUrl)}`}
+                                        >
+                                            House {getHouseId(houseUrl)}
+                                        </Link>
                                     </ListItem>
                                 ))}
                             </List>
@@ -86,8 +98,8 @@ const CharactersTableBody = ({ charactersList }: CharactersTableBodyProps) => {
                     </TableCell>
                 </TableRow>
             ))}
-        </TableBody>
+        </MuiTableBody>
     );
 };
 
-export default CharactersTableBody;
+export default TableBody;

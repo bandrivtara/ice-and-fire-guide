@@ -1,22 +1,13 @@
-import { Box, Paper, Table, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Table, TableContainer,  Typography } from '@mui/material';
 import axios from 'axios';
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { API_ENDPOINTS, BASE_URL, PAGINATION_CONFIG } from '../../configs';
 import { Character } from '../../types';
-import FiltersPanel from './FiltersPanel';
-import Pagination from './Pagination';
-import CharactersTableBody from './TableBody';
-
-export type Filters = {
-    gender: string;
-    culture: string;
-};
-
-export type PaginationData = {
-    page: number;
-    rowsPerPage: number;
-};
+import FiltersPanel, { Filters } from './FiltersPanel';
+import Pagination, { PaginationData } from './Pagination';
+import TableBody from './TableBody';
+import TableHead from './TableHead';
 
 const CharactersTable = () => {
     const [charactersList, setCharactersList] = useState<Array<Character>>([]);
@@ -57,7 +48,7 @@ const CharactersTable = () => {
     };
 
     return (
-        <Paper sx={{m:4}}>
+        <>
             <Box
                 sx={{
                     display: 'flex',
@@ -67,27 +58,19 @@ const CharactersTable = () => {
                     padding: 2,
                 }}
             >
-                <Typography variant="h1" sx={{ fontSize: 26 }}>
+                <Typography variant="h1" sx={{ fontSize: 26, color: 'primary.main' }}>
                     Characters table
                 </Typography>
                 <FiltersPanel filters={filters} updateFilters={updateFilters} />
             </Box>
-            <TableContainer>
+            <TableContainer sx={{mt: 1}}>
                 <Table size="small" aria-label="characters table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Character</TableCell>
-                            <TableCell>Alive</TableCell>
-                            <TableCell>Gender</TableCell>
-                            <TableCell>Culture</TableCell>
-                            <TableCell>Allegiances</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <CharactersTableBody charactersList={charactersList} />
+                    <TableHead />
+                    <TableBody charactersList={charactersList} />
                 </Table>
             </TableContainer>
             <Pagination paginationData={paginationData} setPaginationData={setPaginationData} lastPage={lastPage} />
-        </Paper>
+        </>
     );
 };
 
